@@ -4,11 +4,15 @@ import login from "./routers/login.js";
 import admin from "./routers/admin.js";
 import user from "./routers/user.js";
 import auth from "./middlewares/auth.js"
+import cors from "cors";
 
 const app = express();
 
 app.use(express.json());
-
+app.use(cors({
+    origin: "http://localhost:5173",
+    credentials: true
+}));
 const router = express.Router();
 
 
