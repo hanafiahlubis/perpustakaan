@@ -5,7 +5,7 @@ function authMiddleware(req, res, next) {
     if (token) {
         try {
             req.user = jwt.verify(token, process.env.SECRET_KEY);
-            if (req.method === "GET" || req.method === "POST") {
+            if (req.method === "GET" || req.method === "POST" || req.method === "DELETE") {
                 next();
             } else {
                 res.status(401).send("Anda tidak diizinkan melakukan tindakan ini.");

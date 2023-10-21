@@ -110,7 +110,7 @@ app.post("/pinjam", async (req, res) => {
             console.log(result);
             if (result[0]?.status !== "Dipinjam") {
                 pencatatan(req.body, req.user.id)
-                res.send("Jangan Lupa di pulakan yah!!!");
+                res.send("Jangan Lupa di pulangkan yah!!!");
             } else {
                 res.status(401);
                 res.send(`PulangKan terlebih dahulu  Buku (${result[0].name}) yang anda pinjamkan `);
@@ -125,9 +125,23 @@ app.post("/pinjam", async (req, res) => {
     }
 });
 
-app.post("/pengembalian", async (req, res) => {
+
+app.delete("/pengembalian/:id", async (req, res) => {
     try {
-        console.log(n);
+        let result = await conn.query(`SELECT tgl_peminjeman, tgl_pemulangan FROM peminjaman WHERE id_buku = ${req.body.id_buku} `);
+        if (result.length > 0) {
+            let peminjaman = new Date(result[0].tgl_peminjeman);
+            let pemulangan = new Date(result[0].tgl_pemulangan);
+            let serahkan = new Date(req.body.tgl_diserahkan);
+            if (peminjaman <= serahkan && pemulangan >= serahkan) {
+                await conn.query(`update peminjaman set tgl_diserahkan = "${serahkan}", status = 'TIdak Dipinjam', status_pengembalian = TRUE where id_buku = ${req.params.id}`);
+                await conn.query(`DELETE FROM peminjaman WHERE id_buku = ${req.params.id} AND id_user = ${req.user.id} `);
+                res.send("Berhasil Di Ubah");
+            }
+        } else {
+            res.status(401);
+            res.send("Tidak ada buku yang ditemukan");
+        }
     } catch (error) {
         res.status(400);
         res.send(error);
