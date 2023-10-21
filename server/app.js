@@ -35,17 +35,20 @@ app.post("/api/register", async (req, res) => {
                     await conn.query(`INSERT INTO akun VALUES(DEFAULT, "${req.body.email}","${hash}","${req.body.name}")`);
                     res.send("Berhasil Menambah kan Akun ");
                 } else {
+                    res.status(401);
                     res.send("Password Tidak Sesuai dengan Ketentuan");
                 }
             } else {
+                res.status(401);
                 res.send("Domain Salah");
             }
         } else {
+            res.status(401);
             res.send("Email Sudah ada");
         }
     }
     catch (error) {
-        res.send(404);
+        res.send(400);
         res.send(error);
     }
 });
@@ -80,7 +83,7 @@ app.post("/", async (req, res) => {
             res.send("Domain Salah");
         }
     } catch (error) {
-        res.send(404);
+        res.send(400);
         res.send(error);
     }
 });
@@ -88,9 +91,52 @@ app.post("/", async (req, res) => {
 app.use(auth);
 
 app.get("/me", (req, res) => {
-    res.json(req.user);
+    try {
+        res.json(req.user);
+    } catch (error) {
+        res.status(400);
+        res.send(error);
+    }
 });
 
+async function pencatatan(data, user) {
+    await conn.query(`INSERT INTO peminjaman (id_buku,id_user,tgl_peminjeman,tgl_pemulangan,STATUS) VALUES(${data.id_buku},${user},NOW(),"${data.tgl_pemulangan}","Dipinjam")`);
+}
+app.post("/pinjam", async (req, res) => {
+    try {
+        let result = await conn.query(`select * from buku where id = ${req.body.id_buku}`);
+        if (result.length > 0) {
+            result = await conn.query(`SELECT p.id_user,p.status,b.name FROM peminjaman p INNER JOIN buku b ON b.id = p.id_buku WHERE p.Status = "Dipinjam" AND p.id_user = ${req.user.id}`);
+            console.log(result);
+            if (result[0]?.status !== "Dipinjam") {
+                pencatatan(req.body, req.user.id)
+                res.send("Jangan Lupa di pulakan yah!!!");
+            } else {
+                res.status(401);
+                res.send(`PulangKan terlebih dahulu  Buku (${result[0].name}) yang anda pinjamkan `);
+            }
+        } else {
+            res.status(401);
+            res.send("Buku Tidak Ditemukan");
+        }
+    } catch (error) {
+        res.status(400);
+        res.send(error);
+    }
+});
+
+app.post("/pengembalian", async (req, res) => {
+    try {
+        console.log(n);
+    } catch (error) {
+        res.status(400);
+        res.send(error);
+    }
+});
+
+app.post("/logout", (_req, res) => {
+    res.clearCookie("jwt").send("Logout berhasil.");
+});
 
 const PORT = 3000;
 app.listen(PORT, console.log("Server sedang Berjaln di Port " + PORT));
