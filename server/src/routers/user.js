@@ -49,12 +49,12 @@ router.delete("/pengembalian/:id", async (req, res) => {
             let pemulangan = new Date(result[0].tgl_pemulangan);
             let serahkan = new Date(req.body.tgl_diserahkan);
             if (peminjaman <= serahkan && pemulangan >= serahkan) {
-                await conn.query(`update peminjaman set tgl_diserahkan = "${req.body.tgl_diserahkan}", status = 'TIdak Dipinjam', status_pengembalian = TRUE, terlambat = FALSE where id_buku = ${req.params.id}`);
-                await conn.query(`DELETE FROM peminjaman WHERE id_buku = ${req.params.id} AND id_user = ${req.user.id} `);
+                await conn.query(`update peminjaman set tgl_diserahkan = "${req.body.tgl_diserahkan}", status = 'Tidak Dipinjam', status_pengembalian = TRUE, terlambat = FALSE where id_user = ${req.user.id}`);
+                await conn.query(`DELETE FROM peminjaman WHERE id_buku = ${req.params.id} AND id_user = ${req.user.id}`);
                 res.send("Berhasil Di Ubah");
             }
             else {
-                await conn.query(`update peminjaman set tgl_diserahkan = "${req.body.tgl_diserahkan}", status = 'TIdak Dipinjam', status_pengembalian = TRUE,terlambat = TRUE where id_buku = ${req.params.id}`);
+                await conn.query(`update peminjaman set tgl_diserahkan = "${req.body.tgl_diserahkan}", status = 'TIdak Dipinjam', status_pengembalian = TRUE, terlambat = TRUE where id_user = ${req.user.id}`);
                 await conn.query(`DELETE FROM peminjaman WHERE id_buku = ${req.params.id} AND id_user = ${req.user.id} `);
                 res.send("Berhasil Di Ubah");
             }

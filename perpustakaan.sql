@@ -4,7 +4,7 @@ CREATE OR REPLACE TABLE ADMIN(
 	id INT AUTO_INCREMENT PRIMARY KEY,
 	email TEXT,
 	PASSWORD TEXT,
-	NAME TEXT
+	`name` TEXT
 );
 
 INSERT INTO ADMIN VALUES(DEFAULT, "alihanafiah@gmail.com","$2a$10$OeIRectpnG4gHduPbbWiDe8tfdg/Fk5t7s56W4HX14WWTQA2BuHWq","Ali Hanafiah");
@@ -21,7 +21,7 @@ CREATE OR REPLACE TABLE kategori(
 	`name` TEXT NOT NULL
 );
 
-INSERT INTO kategori VALUES(DEFAULT, "Romantis");
+INSERT INTO kategori VALUES(DEFAULT, "Romantis2");
 
 CREATE OR REPLACE TABLE buku(
 	id INT AUTO_INCREMENT PRIMARY KEY,
@@ -36,6 +36,10 @@ INSERT INTO buku VALUES
 (DEFAULT, "The Notebook", "Nicholas Sparks",1),
 (DEFAULT, "The Fault in Our Stars ", "Jojo Moyes",1),
 (DEFAULT, "Me Before You ", "Audrey Niffenegger",1);
+
+SELECT b.name, MAX(b.harga) FROM buku b INNER JOIN kategori k ON k.id = b.id_kategori ;
+SELECT k.name,COUNT(*) AS total  FROM buku b INNER JOIN kategori k ON k.id = b.id_kategori GROUP BY id_kategori ORDER BY total ASC;
+
 
 CREATE OR REPLACE TABLE peminjaman(
 	id INT AUTO_INCREMENT PRIMARY KEY,
